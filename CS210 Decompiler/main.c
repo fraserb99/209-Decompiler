@@ -17,7 +17,7 @@
 
 //Declare main CPU. Check 'structs.c' for details.
 struct CPU cpu;
-struct Word main_memory[4000]; 
+struct Word main_memory[4096]; 
 
 
 
