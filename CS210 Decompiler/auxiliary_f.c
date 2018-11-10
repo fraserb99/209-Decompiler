@@ -3,15 +3,17 @@
 #include <math.h>
 #include <string.h>
 
-
+struct Word* getMainMemory();
+int getNthBit(int input, int desired_bit);
 
 void clear_mem(struct Word *);
 int btod(char *);
 char* dtob(int);
 void display_mem();
-struct Word* getMainMemory();
 void load_file(char *);
 void user_code();
+void print_assembly();
+void print_instruction(struct Instruction);
 
 const int mem_size = 4096;
 const int word_size = 16;
@@ -34,7 +36,7 @@ int btod(char *binP){
 	for(int i = strlen(binP)-1; i >= 0; i--){
 		if(binP[i] == '1'){
 			dec += pow(2, counter);
-		} else if (binP[i] != '0'){
+		} else if ((binP[i] != '0') && (strcmp(binP, "stop")!=0)){
 			printf("Error: not a binary number\n");
 			return -1;
 		}
@@ -105,4 +107,57 @@ void load_file(char *file_name){
 	
 	
 	fclose(fp);
+}
+
+void print_assembly(){
+	struct Instruction instruct;
+	char opCode_s[4];
+	char operand_s[12];
+	instruct.opcode = -1;
+	int i;
+	int counter = 0;
+	while (instruct.opcode != 0){
+		strcpy(opCode_s, "");
+		strcpy(operand_s, "");
+		for (i=15;i>=12;i--){
+			if (getNthBit(getMainMemory(counter)->contents, i) == 1){
+				strcat(opCode_s, "1");
+			} else{
+				strcat(opCode_s, "0");
+			}
+		}
+		instruct.opcode = btod(opCode_s);
+		for (i=11;i>=0;i--){
+			if (getNthBit(getMainMemory(counter)->contents, i) == 1){
+				strcat(operand_s, "1");
+			} else{
+				strcat(operand_s, "0");
+			}
+		}
+		instruct.operand = btod(operand_s);
+		print_instruction(instruct);
+		counter++;
+	}
+}
+
+void print_instruction(struct Instruction instruct){
+	if (instruct.opcode == 0){
+		printf("Halt\n");
+	} else if (instruct.opcode == 1){
+		printf("Load %d\n", instruct.operand);
+	} else if (instruct.opcode == 2){
+		printf("Store %d\n", instruct.operand);
+	} else if (instruct.opcode == 3){
+		printf("Subt %d\n", instruct.operand);
+	} else if (instruct.opcode == 4){
+		printf("Add %d\n", instruct.operand);
+	} else if (instruct.opcode == 5){
+		printf("Input\n");
+	} else if (instruct.opcode == 6){
+		printf("Output\n");
+	} else if (instruct.opcode == 7){
+		printf("Skipcond\n");
+	} else if (instruct.opcode == 8){
+		printf("Jump %d\n", instruct.operand);
+	}
 }
